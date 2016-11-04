@@ -42,7 +42,7 @@ export const getAllCategories = state => fromDefinitions.getAllCategories(state.
 
 export const getDefaultCategory = state => fromDefinitions.getDefaultCategory(state.definitions);
 
-export const getValue = (state, key) => fromValues.getValue(state.values, key);
+const getValue = (state, key) => fromValues.getValue(state.values, key);
 
 export const getSettingsForCategory = (state, category) =>
     fromDefinitions.getDefinitionsForCategory(state.definitions, category).map(definition => ({

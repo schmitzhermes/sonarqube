@@ -20,7 +20,6 @@
 import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
 import debounce from 'lodash/debounce';
-import { PropTypes as RouterPropTypes } from 'react-router';
 
 import { DEFAULT_FILTERS, DEBOUNCE_DELAY, STATUSES, CURRENTS } from './../constants';
 import Header from './Header';
@@ -39,7 +38,7 @@ export default class BackgroundTasksApp extends React.Component {
 
   static propTypes = {
     component: React.PropTypes.object,
-    location: RouterPropTypes.location.isRequired
+    location: React.PropTypes.object
   };
 
   state = {
@@ -131,7 +130,7 @@ export default class BackgroundTasksApp extends React.Component {
     });
 
     this.context.router.push({
-      pathname: '/',
+      pathname: this.props.location.pathname,
       query: nextQuery
     });
   }

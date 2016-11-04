@@ -25,6 +25,7 @@ import { getCategoryName } from '../utils';
 
 export default class CategoriesList extends React.Component {
   static propTypes = {
+    component: React.PropTypes.object,
     categories: React.PropTypes.array.isRequired,
     selectedCategory: React.PropTypes.string.isRequired,
     defaultCategory: React.PropTypes.string.isRequired
@@ -47,8 +48,10 @@ export default class CategoriesList extends React.Component {
 
     const className = category.key.toLowerCase() === this.props.selectedCategory.toLowerCase() ? 'active' : '';
 
+    const pathname = this.props.component ? '/project/settings' : '/settings';
+
     return (
-        <IndexLink to={{ pathname: '/', query }} className={className} title={category.name}>
+        <IndexLink to={{ pathname, query }} className={className} title={category.name}>
           {category.name}
         </IndexLink>
     );
