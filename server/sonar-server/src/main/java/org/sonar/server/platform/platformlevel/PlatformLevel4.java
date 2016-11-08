@@ -119,6 +119,7 @@ import org.sonar.server.platform.monitoring.PluginsMonitor;
 import org.sonar.server.platform.monitoring.SettingsMonitor;
 import org.sonar.server.platform.monitoring.SonarQubeMonitor;
 import org.sonar.server.platform.monitoring.SystemMonitor;
+import org.sonar.server.platform.web.requestid.HttpRequestUidModule;
 import org.sonar.server.platform.ws.ChangeLogLevelAction;
 import org.sonar.server.platform.ws.DbMigrationStatusAction;
 import org.sonar.server.platform.ws.InfoAction;
@@ -536,7 +537,10 @@ public class PlatformLevel4 extends PlatformLevel {
       NavigationWs.class,
 
       // root
-      RootWsModule.class);
+      RootWsModule.class,
+
+      // Http Request UID
+      HttpRequestUidModule.class);
 
     addAll(level4AddedComponents);
   }
