@@ -19,30 +19,17 @@
  */
 package org.sonar.ce.log;
 
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.ConsoleAppender;
-import org.sonar.process.LogbackHelper;
-import org.sonar.process.Props;
 import org.sonar.server.app.ServerProcessLogging;
 
-import static org.slf4j.Logger.ROOT_LOGGER_NAME;
+import static org.sonar.ce.log.CeLogging.MDC_CE_TASK_UUID;
 
 /**
- * Configure logback for the Compute Engine process.
- * Logs are written to console, which is forwarded to file logs/sonar.log by the app master process.
- * In addition, CE writes activity logs to "logs/ce_activity.log".
+ * Configure logback for the Web Server process. Logs are written to file "ce.log" in SQ's log directory.
  */
 public class CeProcessLogging extends ServerProcessLogging {
 
   public CeProcessLogging() {
-    super("ce");
-  }
-
-  @Override
-  protected void configureAppenders(String logFormat, LoggerContext ctx, LogbackHelper helper, Props props) {
-    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(ctx, "CONSOLE", logFormat);
-    ctx.getLogger(ROOT_LOGGER_NAME).addAppender(consoleAppender);
+    super("ce", "%X{" + MDC_CE_TASK_UUID + "}");
   }
 
 }

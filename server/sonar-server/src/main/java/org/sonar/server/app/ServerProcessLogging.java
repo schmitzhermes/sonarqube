@@ -19,7 +19,11 @@
  */
 package org.sonar.server.app;
 
+import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.FileAppender;
 import java.util.logging.LogManager;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.sonar.api.utils.MessageException;
@@ -30,12 +34,15 @@ import org.sonar.server.platform.ServerLogging;
 
 public abstract class ServerProcessLogging {
   private static final String LOG_LEVEL_PROPERTY = "sonar.log.level";
-  private static final String LOG_FORMAT = "%d{yyyy.MM.dd HH:mm:ss} %-5level XXXX[%X{ceTaskUuid}][%logger{20}] %msg%n";
+  private static final String THREAD_ID_PLACEHOLDER = "ZZZZ";
+  private static final String LOG_FORMAT = "%d{yyyy.MM.dd HH:mm:ss} %-5level [" + THREAD_ID_PLACEHOLDER + "][%logger{20}] %msg%n";
   private final String processName;
+  private final String threadIdField;
   private final LogbackHelper helper = new LogbackHelper();
 
-  protected ServerProcessLogging(String processName) {
+  protected ServerProcessLogging(String processName, String threadIdField) {
     this.processName = processName;
+    this.threadIdField = threadIdField;
   }
 
   public LoggerContext configure(Props props) {
@@ -43,7 +50,7 @@ public abstract class ServerProcessLogging {
     ctx.reset();
 
     helper.enableJulChangePropagation(ctx);
-    configureAppenders(ctx, props);
+    configureRootLogger(ctx, props);
     configureLevels(props);
 
     // Configure java.util.logging, used by Tomcat, in order to forward to slf4j
@@ -52,12 +59,24 @@ public abstract class ServerProcessLogging {
     return ctx;
   }
 
-  private void configureAppenders(LoggerContext ctx, Props props) {
-    String logFormat = LOG_FORMAT.replace("XXXX", processName);
-    configureAppenders(logFormat, ctx, helper, props);
-  }
+  private void configureRootLogger(LoggerContext ctx, Props props) {
+    String logFormat = LOG_FORMAT.replace(THREAD_ID_PLACEHOLDER, threadIdField);
+    // configure appender
+    LogbackHelper.RollingPolicy rollingPolicy = helper.createRollingPolicy(ctx, props, processName);
+    FileAppender<ILoggingEvent> fileAppender = rollingPolicy.createAppender("file");
+    fileAppender.setContext(ctx);
+    PatternLayoutEncoder fileEncoder = new PatternLayoutEncoder();
+    fileEncoder.setContext(ctx);
+    fileEncoder.setPattern(logFormat);
+    fileEncoder.start();
+    fileAppender.setEncoder(fileEncoder);
+    fileAppender.start();
 
-  protected abstract void configureAppenders(String logFormat, LoggerContext ctx, LogbackHelper helper, Props props);
+    // configure logger
+    Logger rootLogger = ctx.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+    rootLogger.addAppender(fileAppender);
+    rootLogger.detachAppender("console");
+  }
 
   private void configureLevels(Props props) {
     String levelCode = props.value(LOG_LEVEL_PROPERTY, "INFO");
