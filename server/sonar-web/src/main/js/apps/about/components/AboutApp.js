@@ -83,6 +83,7 @@ export default class AboutApp extends React.Component {
     }
 
     const isAuthenticated = !!window.SS.user;
+    const { signUpAllowed } = window.sonarqube;
     const loginFormShown = !isAuthenticated && this.props.location.query.login !== undefined;
 
     const logoUrl = this.state.logoUrl || `${window.baseUrl}/images/logo.svg`;
@@ -106,6 +107,12 @@ export default class AboutApp extends React.Component {
                 <div className="about-page-entry-box">
                   <AboutProjects count={this.state.projectsCount}/>
                   {!isAuthenticated && <LoginSection/>}
+                </div>
+            )}
+
+            {signUpAllowed && (
+                <div className="about-page-sign-up">
+                  No account yet? <a href={window.baseUrl + '/users/new'}>Sign up</a>
                 </div>
             )}
           </div>

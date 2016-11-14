@@ -53,6 +53,16 @@
   font-weight: bold;
 }
 
+.about-page-sign-up {
+  margin-top: 20px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.about-page-sign-up a {
+  color: #4b9fd5;
+  border-color: #4b9fd5;
+}
+
 .about-page-auth-providers {
 }
 
